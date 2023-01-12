@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/getsentry/sentry-go"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"net/http"
 	"time"
 
@@ -13,6 +15,8 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/photoprism/photoprism/internal/config"
+
+	"github.com/short-loop/shortloop-sdk-go/shortloopgin"
 )
 
 // Start the REST API server using the configuration provided
@@ -34,14 +38,54 @@ func Start(ctx context.Context, conf *config.Config) {
 
 	// Create new HTTP router engine without standard middleware.
 	router := gin.New()
+	if err := sentry.Init(sentry.ClientOptions{
+		Dsn:           "https://59066e14e5cd452c96fdc3ed4382ec37@o4504286912774144.ingest.sentry.io/4504445015752704",
+		EnableTracing: true,
+		// Set TracesSampleRate to 1.0 to capture 100%
+		// of transactions for performance monitoring.
+		// We recommend adjusting this value in production,
+		TracesSampleRate: 1.0,
+		Debug:            true,
+		AttachStacktrace: true,
+	}); err != nil {
+		fmt.Printf("Sentry initialization failed: %v\n", err)
+	}
+	router.Use(sentrygin.New(sentrygin.Options{
+		Repanic: true,
+	}))
+	shortloopSdk, err := shortloopgin.Init(shortloopgin.Options{
+		ShortloopEndpoint: "https://stage.shortloop.dev",
+		ApplicationName:   "photoprism-gin",
+		LoggingEnabled:    true,
+		LogLevel:          "INFO",
+	})
+	if err != nil {
+		fmt.Println("Error initializing shortloopgin: ", err)
+	} else {
+		router.Use(shortloopSdk.Filter())
+	}
 
 	// Set proxy addresses from which headers related to the client and protocol can be trusted
-	if err := router.SetTrustedProxies(conf.TrustedProxies()); err != nil {
+	if err = router.SetTrustedProxies(conf.TrustedProxies()); err != nil {
 		log.Warnf("server: %s", err)
 	}
 
+	
+	router.GET("/sentry-test", func(c *gin.Context) {
+		panic("test panic for sentry")
+	})
+
 	// Register common middleware.
 	router.Use(Recovery(), Security(conf), Logger())
+
+	router.GET("/panic1", func(c *gin.Context) {
+		panic("test panic")
+	})
+
+	router.GET("/panic2", func(c *gin.Context) {
+		var p *int = nil
+		fmt.Println(*p)
+	})
 
 	// Initialize package extensions.
 	Ext().Init(router, conf)
@@ -102,7 +146,7 @@ func Start(ctx context.Context, conf *config.Config) {
 	// Graceful HTTP server shutdown.
 	<-ctx.Done()
 	log.Info("server: shutting down")
-	err := server.Close()
+	err = server.Close()
 	if err != nil {
 		log.Errorf("server: shutdown failed (%s)", err)
 	}

@@ -1,5 +1,9 @@
 module github.com/photoprism/photoprism
 
+replace github.com/short-loop/shortloop-sdk-go => ./shortloop-sdk-go
+
+replace github.com/short-loop/shortloop-common-go => ./shortloop-common-go
+
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
 	github.com/disintegration/imaging v1.6.2
@@ -13,6 +17,7 @@ require (
 	github.com/dsoprea/go-tiff-image-structure/v2 v2.0.0-20221003165014-8ecc4f52edca
 	github.com/dustin/go-humanize v1.0.0
 	github.com/esimov/pigo v1.4.6
+	github.com/getsentry/sentry-go v0.16.0
 	github.com/gin-contrib/gzip v0.0.6
 	github.com/gin-gonic/gin v1.8.2
 	github.com/golang/geo v0.0.0-20210211234256-740aa86cb551
@@ -36,6 +41,7 @@ require (
 	github.com/paulmach/go.geojson v1.4.0
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
 	github.com/sevlyar/go-daemon v0.1.6
+	github.com/short-loop/shortloop-sdk-go v0.0.1
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.1
 	github.com/studio-b12/gowebdav v0.0.0-20211106090535-29e74efa701f
