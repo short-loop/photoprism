@@ -1,8 +1,5 @@
 module github.com/photoprism/photoprism
 
-replace github.com/short-loop/shortloop-sdk-go => ./shortloop-sdk-go
-
-replace github.com/short-loop/shortloop-common-go => ./shortloop-common-go
 
 require (
 	github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de
@@ -41,7 +38,7 @@ require (
 	github.com/paulmach/go.geojson v1.4.0
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58
 	github.com/sevlyar/go-daemon v0.1.6
-	github.com/short-loop/shortloop-sdk-go v0.0.1
+	github.com/short-loop/shortloop-go v0.0.3
 	github.com/sirupsen/logrus v1.9.0
 	github.com/stretchr/testify v1.8.1
 	github.com/studio-b12/gowebdav v0.0.0-20211106090535-29e74efa701f

@@ -3,10 +3,12 @@ package server
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"os"
+	"time"
+
 	"github.com/getsentry/sentry-go"
 	sentrygin "github.com/getsentry/sentry-go/gin"
-	"net/http"
-	"time"
 
 	"golang.org/x/crypto/acme/autocert"
 	"golang.org/x/sync/errgroup"
@@ -16,7 +18,7 @@ import (
 
 	"github.com/photoprism/photoprism/internal/config"
 
-	"github.com/short-loop/shortloop-sdk-go/shortloopgin"
+	"github.com/short-loop/shortloop-go/shortloopgin"
 )
 
 // Start the REST API server using the configuration provided
@@ -39,7 +41,7 @@ func Start(ctx context.Context, conf *config.Config) {
 	// Create new HTTP router engine without standard middleware.
 	router := gin.New()
 	if err := sentry.Init(sentry.ClientOptions{
-		Dsn:           "https://59066e14e5cd452c96fdc3ed4382ec37@o4504286912774144.ingest.sentry.io/4504445015752704",
+		Dsn:           os.Getenv("SENTRY_DSN"),
 		EnableTracing: true,
 		// Set TracesSampleRate to 1.0 to capture 100%
 		// of transactions for performance monitoring.
@@ -54,8 +56,8 @@ func Start(ctx context.Context, conf *config.Config) {
 		Repanic: true,
 	}))
 	shortloopSdk, err := shortloopgin.Init(shortloopgin.Options{
-		ShortloopEndpoint: "https://stage.shortloop.dev",
-		ApplicationName:   "photoprism-gin",
+		ShortloopEndpoint: os.Getenv("ShortloopEndpoint"),
+		ApplicationName:   os.Getenv("ApplicationName"),
 		LoggingEnabled:    true,
 		LogLevel:          "INFO",
 	})
@@ -70,19 +72,18 @@ func Start(ctx context.Context, conf *config.Config) {
 		log.Warnf("server: %s", err)
 	}
 
-	
-	router.GET("/sentry-test", func(c *gin.Context) {
+	router.GET(conf.BaseUri(config.ApiUri)+"/sentry-test", func(c *gin.Context) {
 		panic("test panic for sentry")
 	})
 
 	// Register common middleware.
 	router.Use(Recovery(), Security(conf), Logger())
 
-	router.GET("/panic1", func(c *gin.Context) {
+	router.GET(conf.BaseUri(config.ApiUri)+"/panic1", func(c *gin.Context) {
 		panic("test panic")
 	})
 
-	router.GET("/panic2", func(c *gin.Context) {
+	router.GET(conf.BaseUri(config.ApiUri)+"/panic2", func(c *gin.Context) {
 		var p *int = nil
 		fmt.Println(*p)
 	})

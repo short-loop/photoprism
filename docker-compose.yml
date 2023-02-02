@@ -36,6 +36,9 @@ services:
       - "traefik.http.routers.photoprism.tls.domains[0].sans=*.localssl.dev"
       - "traefik.http.routers.photoprism.tls=true"
     environment:
+      SENTRY_DSN: "https://59066e14e5cd452c96fdc3ed4382ec37@o4504286912774144.ingest.sentry.io/4504445015752704"
+      ShortloopEndpoint: "https://internal-demo.shortloop.dev"
+      ApplicationName: "photoprism-gin"
       ## Run as a non-root user after initialization (supported: 0, 33, 50-99, 500-600, and 900-1200):
       PHOTOPRISM_UID: ${UID:-1000}                         # user id, should match your host user id
       PHOTOPRISM_GID: ${GID:-1000}                         # group id
